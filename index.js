@@ -1,5 +1,73 @@
 let counter = 0;
 
+class ProductList {
+    constructor(products) {
+        this.products = products;
+    }
+
+    createProductElements() {
+        return this.products.map(product => product.createProductElement());
+    }
+}
+
+class Product {
+    constructor(name, price, image) {
+        this.name = name;
+        this.price = price;
+        this.image = image;
+    }
+
+    createProductElement() {
+        const product = this.createProductContainer();
+        const productImage = this.createProductImage();
+        const productInfoArea = this.createProductInfoArea();
+
+        product.appendChild(productImage);
+        product.appendChild(productInfoArea);
+
+        return product;
+    }
+
+    createProductContainer() {
+        const product = document.createElement('div');
+        return product;
+    }
+
+    createProductImage() {
+        const productImage = document.createElement('img');
+        productImage.setAttribute('loading', 'lazy');
+        productImage.setAttribute('src', this.image);
+        productImage.classList.add('product_image');
+        return productImage;
+    }
+
+    createProductInfoArea() {
+        const productInfoArea = document.createElement('div');
+        productInfoArea.classList.add('info_area');
+
+        const productName = document.createElement('p');
+        productName.innerHTML = this.name;
+        productName.classList.add('product_name');
+        productInfoArea.appendChild(productName);
+
+        const productPrice = document.createElement('p');
+        productPrice.innerHTML = getCurrency(this.price);
+        productPrice.classList.add('price');
+        productInfoArea.appendChild(productPrice);
+
+        const buttonWrapper = document.createElement('div');
+        buttonWrapper.classList.add('button_wrapper');
+        const buyButton = document.createElement('button');
+        buyButton.innerHTML = 'Sepete Ekle';
+        buyButton.setAttribute('onclick', 'showPopup(document.querySelector(".sepet_popup"))');
+        buttonWrapper.appendChild(buyButton);
+        productInfoArea.appendChild(buttonWrapper);
+
+        return productInfoArea;
+    }
+}
+
+
 (function () {
     fetch('katalog.json', {
         headers: {
@@ -11,30 +79,45 @@ let counter = 0;
         .then((response) => render(response));
 })()
 
-function getProduct(brandName) {
-    document.querySelectorAll('.brands div').forEach((e) => e.classList.remove('selected'));
+
+
+function showElement(brandName) {
+    let first_brand_name = document.getElementsByClassName(brandName)[0]
+
     document.getElementsByClassName(`brand_logo_${brandName}`)[0].classList.add('selected');
-
-    document.querySelectorAll('.brand_wrapper').forEach(e => e.classList.remove('show'));
-    document.querySelectorAll('.brand_wrapper').forEach(e => e.classList.add('hide'));
-
-    document.getElementsByClassName(brandName)[0].classList.add('show');
-    document.getElementsByClassName(brandName)[0].classList.remove('hide');
+    first_brand_name.classList.add('show');
+    first_brand_name.classList.remove('hide');
 
 }
 
-function closePopup(){
-    document.querySelector('.sepet_popup').style.display = 'none';
+function hideElement(brands_wrapper) {
+    document.querySelectorAll('.brands div').forEach((e) => e.classList.remove('selected'));
+    brands_wrapper.forEach(e => e.classList.remove('show'));
+    brands_wrapper.forEach(e => e.classList.add('hide'));
 }
 
-function showPopup() {
-    document.querySelector('.sepet_popup').style.display = 'flex';
+function getProduct(brandName) {
+    let brands_wrapper = document.querySelectorAll('.brand_wrapper')
+    hideElement(brands_wrapper)
+    showElement(brandName)
+
+
+}
+
+function closePopup(pop_up) {
+    pop_up.style.display = 'none';
+}
+
+function showPopup(pop_up) {
+
+
+    pop_up.style.display = 'flex';
     counter += 3000
     setTimeout(() => {
         console.log(counter)
         counter -= 3000
         if (counter < 3000)
-            document.querySelector('.sepet_popup').style.display = 'none';
+            pop_up.style.display = 'none';
     }, 3000)
 }
 
@@ -50,41 +133,10 @@ function getCurrency(price) {
     return formattedOutput.format(price).replace(currency_symbol, '') + ' TL';
 }
 
-function createProducts(element, product_wrapper) {
-    element.products.forEach((el) => {
-        let product = document.createElement('div');
-
-
-        let product_image = document.createElement('img');
-        product_image.setAttribute('loading', 'lazy');
-        product_image.setAttribute('src', el.image);
-        product_image.classList.add('product_image');
-        product.appendChild(product_image);
-
-        let product_info_area = document.createElement('div');
-        product_info_area.classList.add('info_area');
-
-
-        let product_name = document.createElement('p');
-        product_name.innerHTML = el.name;
-        product_name.classList.add('product_name');
-        product_info_area.appendChild(product_name);
-
-        let product_price = document.createElement('p');
-        product_price.innerHTML = getCurrency(el.price);
-        product_price.classList.add('price');
-        product_info_area.appendChild(product_price);
-
-        let button_wrapper = document.createElement('div');
-        button_wrapper.classList.add('button_wrapper');
-        let buy_button = document.createElement('button');
-        buy_button.innerHTML = 'Sepete Ekle';
-        buy_button.setAttribute('onclick', 'showPopup()');
-        button_wrapper.appendChild(buy_button);
-        product_info_area.appendChild(button_wrapper);
-        product.appendChild(product_info_area);
-        product_wrapper.appendChild(product);
-    })
+function createProducts(element, productWrapper) {
+    const productList = new ProductList(element.products.map(product => new Product(product.name, product.price, product.image)));
+    const productElements = productList.createProductElements();
+    productElements.forEach(productElement => productWrapper.appendChild(productElement));
 }
 
 function createBrand(element, index) {

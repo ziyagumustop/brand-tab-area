@@ -11,8 +11,18 @@
 .product_name {
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
+}
+
+.info_area {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.selected::after {
+z-index: 999;
 }
 
 @media(max-width:850px) {
@@ -22,9 +32,7 @@
 
     .info_area {
         padding: 20px;
-        gap: 10px;
-        display: flex;
-        flex-direction: column;
+
     }
 
     div[class^='brand_logo_']:hover,
@@ -95,16 +103,14 @@
         top: 50%;
         width: 10px;
         height: 10px;
-        background: white;
         transform: translateY(-50%) rotate(45deg);
-        z-index: 1;
+        
     }
 
     .product-wrapper {
         grid-template-columns: 1fr 1fr 1fr;
         gap: 2px 1px;
         padding: 1px;
-        width: calc(100% - 462px)
     }
 
     .brands>div>div {
@@ -121,15 +127,29 @@
     .brand_image_wrapper {
         /*  display: none;*/
     }
+    .brand_image_wrapper{
+        display: none;
+    }
+    .selected::after{
+        background: #194b93;
+    }
+}
+@media (min-width:1200px){
+    .product-wrapper{
+        width: calc(100% - 462px)
+    }
+    .selected::after{
+        background: white;
+    }
 }
 
 .product_image {
-align-self: center;
+    align-self: center;
 }
 
 .brands>div {
     display: flex;
-    padding: 1.25rem 0.625rem;
+    padding: 0.625rem;
     font-weight: bold;
 }
 
@@ -235,7 +255,7 @@ div[class*=' brand_logo_'] {
 
 .closeButton {
     font-size: 1.5rem;
-    cursor:pointer
+    cursor: pointer
 }
 
 .button_wrapper button {
